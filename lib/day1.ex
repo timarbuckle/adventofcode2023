@@ -41,9 +41,17 @@ defmodule AdventofCode2023.Day1 do
     end
   end
 
-  def convert_words_to_nums(info) do
-    convert_words_to_nums(info, :first)
-    |> convert_words_to_nums(:last)
+  def convert_words_to_nums(s) do
+    # no need to convert if ends with number
+    t = case String.match?(s, ~r/\d$/) do
+      true -> s
+      false -> convert_words_to_nums(s, :last)
+    end
+    # no need to convert if begins with number
+    case String.match?(t, ~r/^\d/) do
+      true -> t
+      false -> convert_words_to_nums(t, :first)
+    end
   end
 
   def convert_words_to_nums(s, direction) do
@@ -60,14 +68,20 @@ defmodule AdventofCode2023.Day1 do
     end
   end
 
-  def convert_words_to_nums(s, [], accum, _direction) do
+  def convert_words_to_nums(s, [], accum, direction) do
     case accum do
       :nochange -> {:ok, s}
       {start, snum, num} ->
-        {
-          :more,
-          String.slice(s, 0, start) <> num <> String.slice(s, start + String.length(snum), String.length(s) - start - String.length(snum))
-        }
+        lensnum = String.length(snum)
+        # is there already a digit before or after planned replacement?
+        case digit_exists?(s, start, lensnum, direction) do
+          true -> {:ok, s}
+          false ->
+            {
+              :more,
+              String.slice(s, 0, start) <> num <> String.slice(s, start + lensnum, String.length(s) - start - lensnum)
+            }
+        end
       #String.replace(s, snum, num, global: false)}
     end
   end
@@ -96,6 +110,13 @@ defmodule AdventofCode2023.Day1 do
             end
           _ -> convert_words_to_nums(s, t, accum, direction)
         end
+    end
+  end
+
+  def digit_exists?(s, start, lensnum, direction) do
+    case direction do
+      :first -> String.match?(String.slice(s, 0, start), ~r/\d/)
+      :last -> String.match?(String.slice(s, start + lensnum, String.length(s) - start - lensnum), ~r/\d/)
     end
   end
 

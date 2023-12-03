@@ -15,13 +15,13 @@ defmodule AdventofCode2023Test do
 
   test "Day 1 Puzzle" do
     {:ok, calibration_info} = File.read("test/day1_test.txt")
-    assert calibrate_trebuchet(calibration_info) == 54642
+    assert calibrate_trebuchet(calibration_info) == 54649
   end
 
   test "Day 1 Convert word to numbers" do
     assert convert_words_to_nums("onexxxsevenyyyninezzzoneyuiitwojjjnine") == "1xxxsevenyyyninezzzoneyuiitwojjj9"
     assert convert_words_to_nums("eightwothree") == "8wo3"
-    assert convert_words_to_nums("4nineeightseven2") == "49eight72"
+    assert convert_words_to_nums("4nineeightseven2") == "4nineeightseven2"
     assert convert_words_to_nums("zoneight234") == "z1ight234"
   end
 
