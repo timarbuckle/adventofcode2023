@@ -1,6 +1,6 @@
-# Adventofcode2023
+# AdventofCode2023
 
-**TODO: Add description**
+Some of the puzzles from [Advent of Code 2023](https://adventofcode.com) implemented in Elixir.
 
 ## Installation
 

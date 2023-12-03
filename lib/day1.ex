@@ -15,8 +15,6 @@ defmodule AdventofCode2023.Day1 do
   def calibrate_trebuchet(cali_info) do
     cali_info
     |> String.split("\n")
-    #|> Enum.map(fn x -> convert_words_to_nums(x) end)
-    #|> Enum.map(fn x -> retrieve_cali_value(x) end)
     |> Enum.map(fn x -> process_cali_info(x) end)
     |> Enum.sum()
   end
@@ -27,16 +25,12 @@ defmodule AdventofCode2023.Day1 do
   end
 
   def retrieve_cali_value(row) do
-    #IO.puts("row #{row}")
     allints = String.replace(row, ~r/[^\d+]/, "")
-    #IO.puts("allints #{allints}")
     case String.length(allints) do
       0 -> 0
       _ ->
         x = String.to_integer(String.at(allints, 0))
         y = String.to_integer(String.at(allints, -1))
-        #IO.puts("sum #{10*x + y}")
-        #IO.puts("-----")
         10 * x + y
     end
   end
@@ -55,15 +49,10 @@ defmodule AdventofCode2023.Day1 do
   end
 
   def convert_words_to_nums(s, direction) do
-    #IO.puts("#{s}")
     case convert_words_to_nums(s, @nums, :nochange, direction) do
       {:ok, result} ->
-        #IO.puts(":ok -> #{result}")
         result
       {:more, result} ->
-        # reverse nums and
-        #convert_words_to_nums(result)
-        #IO.puts(":more -> #{result}")
         result
     end
   end
@@ -87,16 +76,12 @@ defmodule AdventofCode2023.Day1 do
   end
 
   def convert_words_to_nums(s, nums, accum, direction) do
-    #IO.puts(inspect(accum))
     [h | t] = nums
     {snum, num} = h
-    #IO.puts("...search for #{snum}")
     case Util.string_index(s, snum, direction) do
       :nomatch->
-        #IO.puts("not found")
         convert_words_to_nums(s, t, accum, direction)
       {start, _length} ->
-        #IO.puts("...found at #{start}")
         case accum do
           :nochange-> convert_words_to_nums(s, t, {start, snum, num}, direction)
           {xstart, _, _}  ->
@@ -128,10 +113,10 @@ defmodule AdventofCode2023.Day1 do
     x > y
   end
 
-
 end
 
-
+# stolen from https://gist.github.com/samueltardieu/aeb98eaaaf0fe8b73127bb29c7463b75
+# very different (much better then mine) approach, was helpful to diagnose bugs
 defmodule AdventofCode2023.Day1a do
 
   @digits 1..9 |> Enum.map(&{"#{&1}", &1}) |> Map.new()
