@@ -10,6 +10,30 @@ defmodule AdventofCode2023.Day3 do
     |> Enum.sum()
   end
 
+  def gear_ratios_sum(schematic) do
+    {snums, symbols} = process_schematic(schematic, 0, [], [])
+    Enum.filter(symbols, fn {sym, _, _} -> sym == "*" end)
+    #|> Enum.map(fn {symbol, rowx, colx} -> {symbol, find_gears_total({symbol, rowx, colx}, snums)} end)
+    |> Enum.map(fn {symbol, rowx, colx} -> find_gears_total({symbol, rowx, colx}, snums) end)
+    |> Enum.reduce(0, fn {_, x}, acc -> x + acc end)
+  end
+
+  def find_gears_total({symbol, rowx, colx}, snums) do
+    snums2 = Enum.filter(snums, fn {_, row, col, len} -> overlap({row, col, len}, {rowx, colx}) end)
+    #IO.inspect(snums2)
+    case length(snums2) do
+      0 -> {symbol, 0}
+      1 -> {symbol, 0}
+      2 -> {symbol,
+          Enum.map(snums2, fn {snum, _, _, _} -> String.to_integer(snum) end)
+          |> Enum.reduce(1, fn element, acc -> acc * element end)
+        }
+      x ->
+        IO.puts("unexpected gears total: #{x}")
+        {symbol, 0}
+    end
+  end
+
   @spec process_schematic([binary()]) :: {list(), list()}
   def process_schematic(schematic) do
     {snums, symbols} = process_schematic(schematic, 0, [], [])
@@ -59,7 +83,7 @@ defmodule AdventofCode2023.Day3 do
 
   def is_overlap({num, row, col, len}, symbols) do
     [h | t] = symbols
-    {sym, rowx, colx} = h
+    {_sym, rowx, colx} = h
     #IO.puts("checking symbol #{sym}, #{rowx}, #{colx}")
     case overlap({row, col, len}, {rowx, colx}) do
       true -> true
