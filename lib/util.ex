@@ -1,5 +1,9 @@
 defmodule Util do
 
+  def read_file(filename) do
+    File.read!(filename) |> String.split("\n", trim: true)
+  end
+
   def string_index(string, substring) do
     string_index(string, substring, :first)
   end
