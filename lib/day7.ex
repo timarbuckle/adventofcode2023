@@ -26,6 +26,22 @@ defmodule AdventofCode2023.Day7 do
     "A" => "E"
   }
 
+@cardvalue2 %{
+  "2" => "2",
+  "3" => "3",
+  "4" => "4",
+  "5" => "5",
+  "6" => "6",
+  "7" => "7",
+  "8" => "8",
+  "9" => "9",
+  "T" => "A",
+  "J" => "1",
+  "Q" => "C",
+  "K" => "D",
+  "A" => "E"
+}
+
   def camel_cards_1(data) do
     data
     # splits "T55J5 123" into ["T55J5", "123"], aka hand, bid
@@ -33,6 +49,17 @@ defmodule AdventofCode2023.Day7 do
     # ["T55J5", "123"] becomes {"T55J5", {:set, ["5", "5", "5", "J", "T"]}, 123}
     |> Enum.map(fn [hand, bid] -> {hand, id_hand(hand), String.to_integer(bid)} end)
     |> rank_hands()
+    |> total_winnings()
+    #|> Enum.map(fn x -> IO.inspect(x) end)
+  end
+
+  def camel_cards_2(data) do
+    data
+    # splits "T55J5 123" into ["T55J5", "123"], aka hand, bid
+    |> Enum.map(fn x -> String.split(x, " ") end)
+    # ["T55J5", "123"] becomes {"T55J5", {:set, ["5", "5", "5", "J", "T"]}, 123}
+    |> Enum.map(fn [hand, bid] -> {hand, id_hand2(hand), String.to_integer(bid)} end)
+    |> rank_hands2()
     |> total_winnings()
     #|> Enum.map(fn x -> IO.inspect(x) end)
   end
@@ -82,6 +109,24 @@ defmodule AdventofCode2023.Day7 do
     end
   end
 
+  def id_hand2(h) do
+    {type, hand} = id_hand(h)
+    case Enum.filter(hand, fn {x, _} -> x == "J" end) do
+      [] -> {type, hand}
+      [{"J", count}] ->
+        case {type, count} do
+          {:highhand, 1} -> {:pair, hand}
+          {:pair, _} -> {:set, hand}
+          {:twopair, 2} -> {:fourkind, hand}
+          {:twopair, 1} -> {:fullhouse, hand}
+          {:set, _} -> {:fourkind, hand}
+          {:fullhouse, _} -> {:fivekind, hand}
+          {:fourkind, _} -> {:fivekind, hand}
+          {:fivekind, _} -> {:fivekind, hand}
+        end
+    end
+  end
+
   def normalize_pair_or_set(cards) do
     [h | t] = cards
     [h | normalize_highhand(t)]
@@ -112,12 +157,10 @@ defmodule AdventofCode2023.Day7 do
   end
 
   def rank_hands(list) do
-    list
-    #|> Enum.sort_by(fn {hand, {type, cards}, _bid} -> rank_hand({type, cards}) end)
-    |> Enum.sort_by(fn {hand, {type, _cards}, _bid} -> rank_hand2({hand, type}) end)
+    Enum.sort_by(list, fn {hand, {type, _cards}, _bid} -> rank_hand({hand, type}) end)
   end
 
-  def rank_hand2({hand, type}) do
+  def rank_hand({hand, type}) do
     hs = Map.fetch!(@handstrength, type)
     hand_list = String.split(hand, "", trim: true)
     hand_list_revised = Enum.map(hand_list, fn x -> Map.fetch!(@cardvalue, x) end)
@@ -140,7 +183,18 @@ defmodule AdventofCode2023.Day7 do
     #  totalrank
   end
 
-  def rank_hand({_hand, type, cards}) do
+  def rank_hands2(list) do
+    Enum.sort_by(list, fn {hand, {type, _cards}, _bid} -> rank_hand2({hand, type}) end)
+  end
+
+  def rank_hand2({hand, type}) do
+    hs = Map.fetch!(@handstrength, type)
+    hand_list = String.split(hand, "", trim: true)
+    hand_list_revised = Enum.map(hand_list, fn x -> Map.fetch!(@cardvalue2, x) end)
+    hs <> List.to_string(hand_list_revised)
+  end
+
+  def old_rank_hand({_hand, type, cards}) do
     hs = Map.fetch!(@handstrength, type)
     cards2 = Enum.map(cards, fn {x, val} -> {Map.fetch!(@cardvalue, x), val} end)
     #IO.puts("Type #{type} handstrength #{hs}")
